@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
@@ -26,11 +27,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     val adapter by lazy {
         RepoListAdapter(R.layout.item_repo)
-    }
-
-    val exceptionHandler = CoroutineExceptionHandler {
-        _,e->
-        Snackbar.make(fab, "Error Loading Data", Snackbar.LENGTH_INDEFINITE).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,12 +45,17 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     private fun loadData(view:View = fab) {
         Snackbar.make(view, "Loading", Snackbar.LENGTH_INDEFINITE).show()
-        launch(exceptionHandler) {
-            val repolist = Repository.defaultRepository.searchRepos("Kotlin")
-            withContext(Dispatchers.Main) {
-                adapter.items = repolist
-                Snackbar.make(view, "Data Loaded", Snackbar.LENGTH_LONG).show()
+        launch {
+            try {
+                val repolist = Repository.defaultRepository.searchRepos("Kotlin")
+                withContext(Dispatchers.Main) {
+                    adapter.items = repolist
+                    Snackbar.make(view, "Data Loaded", Snackbar.LENGTH_LONG).show()
+                }
+            } catch (e:Exception) {
+                Snackbar.make(fab, "Error Loading Data", Snackbar.LENGTH_INDEFINITE).show()
             }
+
         }
     }
 }
