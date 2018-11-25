@@ -43,17 +43,17 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         loadData()
     }
 
-    private fun loadData(view:View = fab) {
+    private fun loadData(view: View = fab) {
         Snackbar.make(view, "Loading", Snackbar.LENGTH_INDEFINITE).show()
         launch {
-            try {
-                val repolist = Repository.defaultRepository.searchRepos("Kotlin")
+            val response = Repository.defaultRepository.searchRepos("Kotlin")
+            val responseBody = response.body()
+            if (response.isSuccessful && responseBody != null) {
+                val repolist = responseBody.asRepoItemList
                 withContext(Dispatchers.Main) {
                     adapter.items = repolist
                     Snackbar.make(view, "Data Loaded", Snackbar.LENGTH_LONG).show()
                 }
-            } catch (e:Exception) {
-                Snackbar.make(fab, "Error Loading Data", Snackbar.LENGTH_INDEFINITE).show()
             }
 
         }
