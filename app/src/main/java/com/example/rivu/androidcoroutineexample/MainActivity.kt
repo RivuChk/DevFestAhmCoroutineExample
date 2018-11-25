@@ -10,6 +10,7 @@ import com.github.brewin.mvicoroutines.data.Repository
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.rvRepo
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,6 +26,11 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     val adapter by lazy {
         RepoListAdapter(R.layout.item_repo)
+    }
+
+    val exceptionHandler = CoroutineExceptionHandler {
+        _,e->
+        Snackbar.make(fab, "Error Loading Data", Snackbar.LENGTH_INDEFINITE).show()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +49,7 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
 
     private fun loadData(view:View = fab) {
         Snackbar.make(view, "Loading", Snackbar.LENGTH_INDEFINITE).show()
-        launch {
+        launch(exceptionHandler) {
             val repolist = Repository.defaultRepository.searchRepos("Kotlin")
             withContext(Dispatchers.Main) {
                 adapter.items = repolist
